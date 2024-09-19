@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
 import { FormBuilder, Validators } from '@angular/forms';
+import { getErrorMessage, hideSpinner, showSpinner } from '../../services/functions.service';
+import { NotificationImplService } from '../../services/notification.service';
+import { DownloadService } from '../../services/download.service';
 
 @Component({
   selector: 'app-cryptography',
@@ -11,24 +14,47 @@ import { FormBuilder, Validators } from '@angular/forms';
 })
 export default class CryptographyComponent {
   fb = inject(FormBuilder);
-  operation='Encriptar'
-  key=null
-  base64Image: any = null;
-  fileName: string | null = null;;
+  operation = 'Encriptar'
+  key = null
+  base64File: any = null;
+  fileName: string | null = null;
+  public notificationService = inject(NotificationImplService);
+  public download = inject(DownloadService);
   onFileSelected(event: Event): void {
     const element = event.target as HTMLInputElement;
     if (element && element.files && element.files.length) {
       const file = element.files[0];
-      this.fileName = file.name; 
+      this.fileName = file.name;
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result as string;
-        this.base64Image = result.replace(/^data:image\/[a-z]+;base64,/, '');
-        console.log(this.base64Image);
+        console.log('result', result);
+        const base64Prefix = /^data:[a-z]+\/[a-z0-9-+.]+;base64,/i;
+        this.base64File = result.replace(base64Prefix, '');
+        console.log(this.base64File);
       };
       reader.readAsDataURL(file);
     } else {
       this.fileName = null;
     }
+  }
+  execution() {
+    showSpinner();
+    if (this.key && this.base64File) {
+      try {
+        this.download.downloadFilePost({ inputKey: this.key, fileData: this.base64File ,inputFilePath: 'C:\\carpeta\\',
+          outputFilePath:'C:\\carpeta\\'},this.operation)
+        this.notificationService.successNotification('Generación de archivo', 'Archivo generado con éxito.');
+        hideSpinner()
+      } catch (error) {
+        hideSpinner()
+        const message = getErrorMessage(error)
+        this.notificationService.errorNotification(message);
+      }
+    } else {
+      hideSpinner()
+      this.notificationService.errorNotification('Todos los campos son obligatorios.');
+    }
+
   }
 }

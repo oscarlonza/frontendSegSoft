@@ -22,6 +22,6 @@
         </div>
     </div>
     <div class="d-flex justify-content-center mt-4">
-        <button mat-raised-button color="primary">{{ operation || 'Seleccione una opción' }}</button>
+        <button (click)="execution()" mat-raised-button color="primary">{{ operation || 'Seleccione una opción' }}</button>
     </div>
 </div>
