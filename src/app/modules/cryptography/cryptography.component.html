@@ -1,1 +1,27 @@
-<p>cryptography works!</p>
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <mat-radio-group aria-label="Select an option" [(ngModel)]="operation">
+            <mat-radio-button value="Encriptar">Encriptar</mat-radio-button>
+            <mat-radio-button value="Desencriptar">Desencriptar</mat-radio-button>
+          </mat-radio-group>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <mat-form-field appearance="outline" style="width:50%">
+            <mat-label>Clave</mat-label>
+            <textarea rows="2" matInput type="text" [(ngModel)]="key">
+
+            </textarea>
+        </mat-form-field>
+        <div style="width:50%">
+            <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
+            <button mat-raised-button color="primary" (click)="fileInput.click()">Seleccionar archivo</button>
+            <div *ngIf="fileName" style="margin-top: 10px;">
+                <p>Archivo seleccionado: {{ fileName }}</p>
+            </div>
+
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        <button mat-raised-button color="primary">{{ operation || 'Seleccione una opción' }}</button>
+    </div>
+</div>
