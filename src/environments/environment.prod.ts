@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://zoscardomiserver.azurewebsites.net/api',
+    apiUrl: 'https://luis-sarmiento.lat/api',
     accessToken: ''
 };
