@@ -15,7 +15,6 @@ export default class DownloadFileComponent {
   public notificationService = inject(NotificationImplService);
 
   async downloadFile() {
-    console.log(sessionStorage.getItem('dataUser'));
     const result = await this.download.downloadFile();
   }
 }

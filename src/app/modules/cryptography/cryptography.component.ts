@@ -28,10 +28,8 @@ export default class CryptographyComponent {
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result as string;
-        console.log('result', result);
         const base64Prefix = /^data:[a-z]+\/[a-z0-9-+.]+;base64,/i;
         this.base64File = result.replace(base64Prefix, '');
-        console.log(this.base64File);
       };
       reader.readAsDataURL(file);
     } else {
@@ -42,9 +40,7 @@ export default class CryptographyComponent {
     showSpinner();
     if (this.key && this.base64File) {
       try {
-        this.download.downloadFilePost({ inputKey: this.key, fileData: this.base64File ,inputFilePath: 'C:\\carpeta\\',
-          outputFilePath:'C:\\carpeta\\'},this.operation)
-        this.notificationService.successNotification('Generación de archivo', 'Archivo generado con éxito.');
+        this.download.downloadFilePost({ inputKey: this.key, fileData: this.base64File},this.operation)
         hideSpinner()
       } catch (error) {
         hideSpinner()
@@ -56,5 +52,9 @@ export default class CryptographyComponent {
       this.notificationService.errorNotification('Todos los campos son obligatorios.');
     }
 
+  }
+  changeValue(e:any){
+    this.base64File=null
+    this.fileName=null
   }
 }

@@ -1,5 +1,5 @@
 <div class="d-flex flex-row align-items-center">
-    <span>{{auth.user?.name}}</span>
+    <span>{{getName() || ''}}</span>
     <!--  <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon"> -->
      <button mat-icon-button class="example-icon favorite-icon" [matMenuTriggerFor]="menu">
          <mat-icon>face</mat-icon>

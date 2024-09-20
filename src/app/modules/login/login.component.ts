@@ -46,16 +46,14 @@ export default class LoginComponent {
   hide = false;
   static switch: any = 0;
   loginForm = this.fb.group({
-    email: ['', Validators.required],
+    nickname: ['', Validators.required],
     password: ['', Validators.required],
   });
   constructor(private dialog: MatDialog,) {
 
   }
   async signIn() {
-    const { email, password } = this.loginForm.value;
-    const result = await this.auth.login({ nickname: email, password: password });
-    console.log('result', result);
+    const result = await this.auth.login(this.loginForm.value);
     if (result.success) {
       sessionStorage.setItem('dataUser', JSON.stringify(result.data));
       this.auth.user = JSON.parse(sessionStorage.getItem('dataUser')!);
