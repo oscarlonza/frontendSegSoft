@@ -9,6 +9,7 @@ import { NotificationImplService } from './notification.service';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from './auth.service';
+import { hideSpinner, showSpinner } from './functions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class DownloadService {
   public auth = inject(AuthService);
   constructor(private http: HttpClient) { }
   downloadFile() {
+    showSpinner();
     const rawToken = this.auth.user;
     const token = rawToken ? rawToken.replace(/"/g, '') : '';
     const headers = new HttpHeaders({
@@ -34,6 +36,7 @@ export class DownloadService {
       .subscribe((response: any) => {
         const fileName = this.getFileNameFromHeader(response.headers);
         this.saveFile(response.body, fileName);
+        hideSpinner();
       });
   }
 
@@ -58,6 +61,7 @@ export class DownloadService {
     window.URL.revokeObjectURL(url);
   }
   downloadFilePost(requestBody: any, operation: string) {
+    showSpinner();
     const rawToken = this.auth.user;
     const token = rawToken ? rawToken.replace(/"/g, '') : '';
     const headers = new HttpHeaders({
@@ -77,9 +81,11 @@ export class DownloadService {
           const fileName = this.getFileNameFromHeader(response.headers, operation);
           this.saveFile(response.body, fileName);
           this.notificationService.successNotification('Generación de archivo', 'Archivo generado con éxito.');
+          hideSpinner()
         }),
         catchError((error) => {
           this.notificationService.errorNotification('Por favor rectifique la clave ingresada');
+          hideSpinner()
           return of(error); // Manejar el error de forma adecuada
         })
       )
