@@ -6,15 +6,19 @@ import { RequestService } from '../../app/services/request.service';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { NotificationImplService } from './notification.service';
+import { catchError, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DownloadService {
   public notificationService = inject(NotificationImplService);
+  public auth = inject(AuthService);
   constructor(private http: HttpClient) { }
   downloadFile() {
-    const rawToken = sessionStorage.getItem("dataUser");
+    const rawToken = this.auth.user;
     const token = rawToken ? rawToken.replace(/"/g, '') : '';
     const headers = new HttpHeaders({
       'Authorization': `${token}`,
@@ -28,19 +32,21 @@ export class DownloadService {
         observe: 'response',
       })
       .subscribe((response: any) => {
-        console.log(response);
         const fileName = this.getFileNameFromHeader(response.headers);
         this.saveFile(response.body, fileName);
       });
   }
 
-  private getFileNameFromHeader(headers: HttpHeaders): string {
-    console.log(headers);
+  private getFileNameFromHeader(headers: HttpHeaders, operation?: string): string {
     const contentDisposition = headers.get('Content-Disposition');
-    console.log(contentDisposition);
     const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
-    console.log(fileNameMatch);
-    return fileNameMatch ? fileNameMatch[1] : 'User_Export.txt';
+    if (operation && operation == 'Encriptar') {
+      return fileNameMatch ? fileNameMatch[1] : 'Encripted_File.txt';
+    } else if (operation == 'Desencriptar') {
+      return fileNameMatch ? fileNameMatch[1] : 'Decrypted_File.txt';
+    } else {
+      return fileNameMatch ? fileNameMatch[1] : 'User_Export.txt';
+    }
   }
 
   private saveFile(blob: Blob, fileName: string) {
@@ -52,7 +58,7 @@ export class DownloadService {
     window.URL.revokeObjectURL(url);
   }
   downloadFilePost(requestBody: any, operation: string) {
-    const rawToken = sessionStorage.getItem("dataUser");
+    const rawToken = this.auth.user;
     const token = rawToken ? rawToken.replace(/"/g, '') : '';
     const headers = new HttpHeaders({
       'Authorization': `${token}`,
@@ -63,38 +69,22 @@ export class DownloadService {
     this.http
       .post(`${environment.apiUrl}/functions/${action}`, requestBody, {
         headers: headers,
-        responseType: 'json', // Obtenemos la respuesta como JSON
+        responseType: 'blob',
         observe: 'response',
       })
-      .subscribe((response: any) => {
-        if (response.body.process) {
-          const fileInfo = response.body.data.headers;
-          const bufferData = response.body.data.buffer.data; // Aquí está el arreglo de bytes
-          const fileName = this.extractFileName(fileInfo);
-
-          this.saveFilePost(bufferData, fileName); // Guardamos el archivo usando los datos del buffer
-        }else{
-          this.notificationService.errorNotification(response.body.message);
-        }
-      });
+      .pipe(
+        tap((response: any) => {
+          const fileName = this.getFileNameFromHeader(response.headers, operation);
+          this.saveFile(response.body, fileName);
+          this.notificationService.successNotification('Generación de archivo', 'Archivo generado con éxito.');
+        }),
+        catchError((error) => {
+          this.notificationService.errorNotification('Por favor rectifique la clave ingresada');
+          return of(error); // Manejar el error de forma adecuada
+        })
+      )
+      .subscribe();
   }
 
-  private extractFileName(headersData: any): string {
-    const contentDisposition = headersData['Content-Disposition'];
-    const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-    return fileNameMatch ? fileNameMatch[1] : 'Encrypted_File.txt';
-  }
-
-  private saveFilePost(bufferData: number[], fileName: string) {
-    // Convertimos el arreglo de bytes a un Blob
-    const byteArray = new Uint8Array(bufferData);
-    const blob = new Blob([byteArray], { type: 'text/plain' }); // Ajustamos el MIME type a text/plain
-    const link = document.createElement('a');
-    const url = window.URL.createObjectURL(blob);
-    link.href = url;
-    link.download = fileName;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  }
 }
 
