@@ -37,11 +37,9 @@ export default class CryptographyComponent {
     }
   }
   execution() {
-    showSpinner();
     if (this.key && this.base64File) {
       try {
         this.download.downloadFilePost({ inputKey: this.key, fileData: this.base64File},this.operation)
-        hideSpinner()
       } catch (error) {
         hideSpinner()
         const message = getErrorMessage(error)

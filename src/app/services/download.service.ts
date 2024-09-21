@@ -6,7 +6,7 @@ import { RequestService } from '../../app/services/request.service';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { NotificationImplService } from './notification.service';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, finalize, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from './auth.service';
 import { hideSpinner, showSpinner } from './functions.service';
@@ -81,12 +81,14 @@ export class DownloadService {
           const fileName = this.getFileNameFromHeader(response.headers, operation);
           this.saveFile(response.body, fileName);
           this.notificationService.successNotification('Generación de archivo', 'Archivo generado con éxito.');
-          hideSpinner()
         }),
         catchError((error) => {
           this.notificationService.errorNotification('Por favor rectifique la clave ingresada');
-          hideSpinner()
           return of(error); // Manejar el error de forma adecuada
+        }),
+        finalize(() => {
+          // Ocultar el loading tanto si la solicitud es exitosa como si falla.
+          hideSpinner();
         })
       )
       .subscribe();
