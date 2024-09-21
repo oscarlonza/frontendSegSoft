@@ -1,5 +1,6 @@
 {
     "globalHeaders": {
+      "Content-Security-Policy": "",
       "Access-Control-Allow-Origin": "https://ashy-sky-09963290f.5.azurestaticapps.net",
       "X-Frame-Options": "SAMEORIGIN",
       "X-Permitted-Cross-Domain-Policies": "none",
