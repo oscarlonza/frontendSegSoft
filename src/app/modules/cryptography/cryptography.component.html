@@ -3,14 +3,14 @@
         <mat-radio-group (ngModelChange)="changeValue($event)" aria-label="Select an option" [(ngModel)]="operation">
             <mat-radio-button value="Encriptar">Encriptar</mat-radio-button>
             <mat-radio-button value="Desencriptar">Desencriptar</mat-radio-button>
-          </mat-radio-group>
+        </mat-radio-group>
     </div>
     <div class="d-flex align-items-center gap-3">
         <mat-form-field appearance="outline" style="width:50%">
             <mat-label>Clave</mat-label>
             <textarea rows="2" matInput type="text" [(ngModel)]="key" [minlength]="4" [maxLength]="256">
-
             </textarea>
+            <mat-hint>La clave debe contener entre 4 y 256 caracteres</mat-hint>
         </mat-form-field>
         <div style="width:50%">
             <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
@@ -22,6 +22,7 @@
         </div>
     </div>
     <div class="d-flex justify-content-center mt-4">
-        <button (click)="execution()" mat-raised-button color="primary">{{ operation || 'Seleccione una opción' }}</button>
+        <button (click)="execution()" mat-raised-button color="primary">{{ operation || 'Seleccione una opción'
+            }}</button>
     </div>
 </div>
