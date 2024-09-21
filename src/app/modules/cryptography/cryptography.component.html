@@ -8,7 +8,7 @@
     <div class="d-flex align-items-center gap-3">
         <mat-form-field appearance="outline" style="width:50%">
             <mat-label>Clave</mat-label>
-            <textarea rows="2" matInput type="text" [(ngModel)]="key">
+            <textarea rows="2" matInput type="text" [(ngModel)]="key" [minlength]="4" [maxLength]="256">
 
             </textarea>
         </mat-form-field>
